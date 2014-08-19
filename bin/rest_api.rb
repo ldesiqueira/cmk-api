@@ -39,6 +39,26 @@ def wato
   Check_MK.new.site(params[:site])
 end
 
+# Return a list of routes
+get '/' do
+  %w[sites].to_json
+end
+
+# Return a list of all hosts
+get '/sites' do
+  Check_MK.new.sites.to_json
+end
+
+# Return a list of all routes related to /sites/:site
+get '/sites/:site' do
+  site = Check_MK.new.site(params[:site])
+  JSON.pretty_generate(
+  { 
+	'hosts' => site.hosts,
+        'folders' => site.folders,
+  })
+end
+
 # Return a list of all hosts
 get '/sites/:site/hosts' do
   JSON.generate wato.hosts
@@ -50,8 +70,13 @@ get '/sites/:site/folders' do
 end
 
 # Return a list of all hosts in a folder
-get '/sites/:site/folders/:folder/hosts' do
-  wato.folder(params[:folder]).hosts.to_json
+get '/sites/:site/folders/:folder' do
+  folder = Check_MK.new.site(params[:site]).folder(params[:folder])
+  JSON.pretty_generate(
+  {
+	'name' => params[:folder],
+        'hosts' => folder.hosts,
+  })
 end
 
 # Create a new host
@@ -65,7 +90,6 @@ delete '/sites/:site/folders/:folder/:hostname' do
   wato.folder(params[:folder]).delete_host(params[:hostname])
   { 'content' => 'Host deleted', 'status' => '0' }.to_json
 end
-
 
 # Reload the check_mk configuration
 put '/sites/:site/:action' do

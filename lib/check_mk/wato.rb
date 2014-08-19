@@ -48,10 +48,11 @@ class Check_MK
         #   "localhost|cmk-agent|prod|lan|tcp|wato|/" + FOLDER_PATH + "/",
         #   ]
         res = []
-        File.open(@path + '/hosts.mk').readlines.each do |line|
-          if line =~ / \+ FOLDER_PATH \+/
+        infile = @path + '/hosts.mk'
+        File.open(infile).readlines.each do |line|
+          if line =~ /\|wato\|.* \+ FOLDER_PATH \+/
   	  line =~ / \"(.*?)\|/
-            raise 'syntax error' unless $1
+            raise "syntax error reading #{infile}; line=#{line}" unless $1
   	  res.push $1
   	end
         end
@@ -59,7 +60,7 @@ class Check_MK
       end
   
       def initialize(path)
-        raise ArgumentError, 'bad path' unless File.exist? path
+        raise ArgumentError, "bad path: #{path}" unless File.exist? path
         @path = path
       end
     end
@@ -68,7 +69,9 @@ class Check_MK
     def folders
       res = []
       `find #{@confdir} -name hosts.mk`.each do |ent|
-         res.push File.dirname(ent).gsub(/.*\//, '')
+         found = File.dirname(ent).gsub(/.*\//, '')
+         # Special case: the main directory
+         res.push found unless found == 'wato'
       end
       res.sort
     end
