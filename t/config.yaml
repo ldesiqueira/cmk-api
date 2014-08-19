@@ -1,0 +1,4 @@
+---
+ignore_sites:
+  - devstage
+  - staging
