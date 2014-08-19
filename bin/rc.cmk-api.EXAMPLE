@@ -2,6 +2,17 @@
 #
 # Init script for the Check_MK API service
 #
+### BEGIN INIT INFO
+# Provides: 
+# Required-Start: $network
+# Required-Stop: 
+# Should-Start: 
+# Should-Stop: 
+# Default-Start: 3 4 5
+# Default-Stop: 0 1 2 6
+# Short-Description: start and stop cmk-api
+# Description: cmk-api is a REST API for check_mk
+### END INIT INFO
 
 INSTALL_PREFIX="/opt/cmk-api"
 SITE="watotest"
