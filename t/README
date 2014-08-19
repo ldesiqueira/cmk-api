@@ -1,0 +1,10 @@
+How to setup a test environment
+-----
+
+sudo omd site create watotest
+sudo omd start watotest
+login to http://wherever/watotest/check_mk/
+create a folder named 'folder1'
+create a host named 'localhost', add it to folder1
+apply changes via WATO
+
