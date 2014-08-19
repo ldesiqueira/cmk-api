@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# Init script for the Check_MK API service
+#
+
+INSTALL_PREFIX="/opt/cmk-api"
+SITE="watotest"
+LOGFILE="/omd/sites/$SITE/var/log/cmk-api.log"
+PORT=5005
+
+case $1 in
+start)
+	printf "Starting cmk-api for site $SITE.. "
+	sudo -i -u $SITE $INSTALL_PREFIX/bin/rest_api.rb -p $PORT >> $LOGFILE 2>&1 &
+	disown -h
+ 	echo "done"
+	;;
+
+  
+stop)
+	printf "Stopping cmk-api for site $SITE.. "
+	sudo -u $SITE pkill -INT -u $SITE rest_api.rb
+	echo "done"
+	;;
+
+restart)
+	echo "FIXME -- STUB"
+	;;
+
+*)
+	echo "unknown action" 
+	exit 1
+esac
+
