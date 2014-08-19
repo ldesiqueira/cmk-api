@@ -6,13 +6,30 @@
 require 'rubygems'
 require 'sinatra'
 require 'json'
+require 'yaml'
 
 $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
 require 'check_mk'
 
-#use Rack::Auth::Basic, 'Restricted Area' do |username, password|
-#  username == 'admin' and password == 'admin'
-#end
+# Read the configuration file
+conffile = File.dirname(__FILE__) + '/../config.yaml'
+if File.exist? conffile
+  yml = YAML.load(File.open(conffile))
+  @authenticate = yml['authenticate']
+  @user = yml['user']
+  @password = yml['password']
+else
+  puts "WARNING: No configuration file #{conffile}; using defaults"
+  @authenticate = false
+  @user = ''
+  @password = ''
+end
+
+if @authenticate
+  use Rack::Auth::Basic, 'Restricted Area' do |username, password|
+    username == @user and password == @password
+  end
+end
 
 before do
   content_type :json

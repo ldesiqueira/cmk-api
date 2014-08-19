@@ -16,6 +16,10 @@ start)
  	echo "done"
 	;;
 
+start-debug)
+	sudo -i -u $SITE $INSTALL_PREFIX/bin/rest_api.rb -p $PORT 
+	;;
+
   
 stop)
 	printf "Stopping cmk-api for site $SITE.. "

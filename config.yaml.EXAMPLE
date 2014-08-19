@@ -1,0 +1,4 @@
+---
+authenticate: true
+user: 'admin'
+password: 'admin'
