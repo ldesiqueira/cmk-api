@@ -1,2 +1,3 @@
 t/config.yaml
 config.yaml
+etc/cmk-api-client.conf

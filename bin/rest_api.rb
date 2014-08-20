@@ -80,9 +80,11 @@ get '/sites/:site/folders/:folder' do
 end
 
 # Create a new host
-post '/sites/:site/folders/:folder/:hostname' do
-  wato.folder(params[:folder]).add_host(params[:hostname])
-  { 'content' => 'Host created', 'status' => '0' }.to_json
+post '/sites/:site/folders/:folder/hosts/:hostname' do
+  hostname = params[:hostname]
+  raise ArgumentError, 'illegal hostname' if hostname !~ /^[A-Za-z][A-Za-z0-9._-]{1,200}/
+  wato.folder(params[:folder]).add_host(hostname)
+  { 'content' => "Host #{hostname} created", 'status' => '0' }.to_json
 end
 
 # Delete a host

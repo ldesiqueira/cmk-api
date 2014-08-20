@@ -1,0 +1,90 @@
+#!/usr/bin/env ruby
+
+require 'json'
+require 'optparse'
+require 'yaml'
+require 'rest_client'
+require 'pp'
+
+def get_options
+  optparse = OptionParser.new do |opts|
+    opts.on( '--verbose', 'Display extra debugging information') do |arg|
+      @config['verbose'] = true
+    end
+  
+    opts.on( '--folder FOLDER', 'Specify the folder the host belongs to') do |arg|
+      @config['folder'] = arg
+    end
+
+    opts.on( '--add-host HOSTNAME', 'Add a host') do |arg|
+      raise 'cannot specify multiple actions' unless @config['action'].nil?
+      @config['action'] = 'add-host'
+      @config['hostname'] = arg
+    end
+
+    opts.on( '--list-hosts', 'List all hosts in a folder') do |arg|
+      raise 'cannot specify multiple actions' unless @config['action'].nil?
+      @config['action'] = 'list-hosts'
+    end
+
+    opts.on( '--delete-host HOSTNAME', 'Delete a host') do |arg|
+      raise 'cannot specify multiple actions' unless @config['action'].nil?
+      @config['action'] = 'delete-host'
+      @config['hostname'] = arg
+    end
+
+    opts.on( '--uri URI', 'The URI to access') do |arg|
+      @config['uri'] = arg
+    end
+  
+    opts.on( '-h', '--help', 'Display this screen' ) do
+      puts opts
+      exit
+    end
+  end
+  
+  optparse.parse!
+end
+
+def parse_config
+  confdir = File.realpath(File.dirname(__FILE__) + '/../etc')
+  conffile = confdir + '/cmk-api-client.conf'
+  @config.merge! YAML.load_file(conffile)
+  #pp @config
+end
+
+def usage
+  puts <<EOF
+usage: see --help for usage information
+EOF
+end
+
+@config = {
+  'action' => nil,
+  'verbose' => false,
+  'folder' => nil,
+  'uri' => 'http://localhost:5005/sites/watotest',
+}
+
+parse_config
+get_options
+
+case @config['action']
+when nil
+  puts "ERROR: you must specify an action"
+  usage
+
+when 'add-host'
+  uri = @config['uri'] + '/folders/' + @config['folder'] + '/hosts/' + @config['hostname']
+  response = RestClient.post uri, :tags => ''
+  pp response
+
+when 'list-hosts'
+  uri = @config['uri'] + '/folders/' + @config['folder'] 
+  response = JSON.parse(RestClient.get uri, { :accept => :json })
+  response['hosts'].sort.each { |h| puts h }
+
+else
+  raise 'unknown action'
+
+end
