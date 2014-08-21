@@ -19,8 +19,8 @@
 SITE=`echo $0 | sed 's/.*\.//'`
 
 # Set the defaults
-PREFIX="/omd/sites/$SITE/cmk-api"
-PIDFILE="$PREFIX/rack.pid"
+PREFIX="/opt/cmk-api"
+PIDFILE="/omd/sites/$SITE/tmp/run/cmk-api.pid"
 RUN_AS="$SITE"
 PORT=5005
 
@@ -40,14 +40,14 @@ cd $PREFIX
 
 case $1 in
 start)
-  printf "Starting cmk-api for site $SITE on port $PORT.. "
-  scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT -D --pid $PREFIX/rack.pid'"
+	printf "Starting cmk-api for site $SITE on port $PORT.. "
+	scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT -D --pid $PIDFILE'"
  	echo "done"
 	;;
 
 start-debug)
 	echo "Starting cmk-api for site $SITE in debugging mode.. "
-  scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT'"
+	scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT'"
 	;;
 
 stop)
@@ -59,7 +59,9 @@ stop)
 	;;
 
 restart)
-	echo "FIXME -- STUB"
+	$0 stop
+	sleep 3
+	$0 start
 	;;
 
 *)

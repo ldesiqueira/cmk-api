@@ -1,5 +1,5 @@
 # The path where cmk-api is installed
-SITE="<%= "/omd/sites/#{@site}/cmk-api" %>"
+PREFIX="<%= File.realpath(File.dirname(__FILE__)) %>"
 
 # The name of the OMD site which runs check_mk
 SITE="<%= @site %>"

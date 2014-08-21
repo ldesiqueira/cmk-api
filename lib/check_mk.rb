@@ -3,6 +3,16 @@ class Check_MK
   require 'net/http'
   require 'pp'
 
+  # Create a top-level object.
+  # [+uri+] the URI to the check_mk web interface
+  # [+user+] the username to login with
+  # [+password+] the password to login with
+  def initialize(uri, user, password)
+    @uri = uri
+    @user = user
+    @password = password
+  end
+
   # Add a host to a folder
   # [+name+] the name of the host
   # [+options+] additional options, such as tags and folders
@@ -37,13 +47,13 @@ class Check_MK
       }
     params.merge! options
 
-    http_request('http://localhost/watotest/check_mk/wato.py', params)
+    http_request(@uri + '/wato.py', params)
   end
 
   def delete_host(name, folder = '')
     # example:
     #http://localhost/watotest/check_mk/wato.py?mode=folder&_delete_host=testhost&_transid=1408580836/1995573565&folder=folder1&_do_confirm=yes 
-    http_request('http://localhost/watotest/check_mk/wato.py', {
+    http_request(@uri + '/wato.py', {
     	mode: 'folder',
 	_delete_host: name,
 	_transid: '-1',
@@ -54,14 +64,17 @@ class Check_MK
   end
 
   def activate
-    http_request('http://localhost/watotest/check_mk/wato_ajax_activation.py', {})
+    http_request(@uri + '/wato_ajax_activation.py', {})
   end
 
   private
 
-  def http_request(request_uri, params, debug = false)
+  def http_request(request_uri, params = nil, debug = false)
     uri = URI.parse(request_uri)
-    uri.query = URI.encode_www_form(params)
+    unless params.nil?
+      params.merge!({ _username: @user, _secret: @password})
+      uri.query = URI.encode_www_form(params)
+    end
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Get.new(uri.request_uri)
     request.basic_auth("cmk-api", "cmk-api-secret")

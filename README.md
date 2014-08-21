@@ -20,16 +20,17 @@ Requirements
 Installation
 ============
 
-sudo yum install -y ruby193-rubygem-minitest ruby193-rubygem-sinatra \
-  ruby193-ruby-devel gcc-c++
+  	# Dependencies
+	sudo yum install -y ruby193-rubygem-minitest ruby193-rubygem-sinatra \
+  		ruby193-ruby-devel gcc-c++
 
-cd /omd/sites/$YOUR_SITE
-git clone git@github.com:bronto/cmk-api.git
-cd cmk-api
-scl enable ruby193 bash
-bundle update #(or maybe install?)
-sudo rake install
-sudo service cmk-api.$YOUR_SITE start
+	cd /opt
+	git clone git@github.com:bronto/cmk-api.git
+	cd cmk-api
+	scl enable ruby193 'bundle install --path ./gems'
+	
+	# Replace $SITE and $PORT with the appropriate values
+	sudo scl enable ruby193 'rake install site=$SITE port=$PORT'
 
 TODO
 ----

@@ -1,6 +1,7 @@
 t/config.yaml
-config.yaml
+etc/config.yaml
 etc/cmk-api-client.conf
 log/
 rack.pid
 .bundle/
+gems/

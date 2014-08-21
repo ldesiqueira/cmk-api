@@ -1,7 +1,9 @@
-#!/usr/bin/ruby193
+#!/usr/bin/env ruby
 #
 # Provide a REST API for check_mk's WATO utility
 #
+
+raise 'Unsupported Ruby version' unless RUBY_VERSION >= "1.9"
 
 require 'sinatra/base'
 
@@ -18,32 +20,34 @@ class CmkAPI < Sinatra::Base
     raise ArgumentError, 'illegal hostname' if s !~ /^[A-Za-z][A-Za-z0-9._-]{1,200}/
     s
   end
-  
-  # Read the configuration file
-  conffile = File.dirname(__FILE__) + '/../config.yaml'
-  if File.exist? conffile
-    yml = YAML.load(File.open(conffile))
-    @authenticate = yml['authenticate']
-    @user = yml['user']
-    @password = yml['password']
-  else
-    puts "WARNING: No configuration file #{conffile}; using defaults"
-    @authenticate = false
-    @user = ''
-    @password = ''
+
+  def cmk
+    Check_MK.new($uri, $user, $password)
   end
   
-  # setup logging
-  logdir = File.dirname(__FILE__) + '/../log'
-  Dir.mkdir logdir unless File.exist? logdir
-  logger = Logger.new(logdir + '/webrick.log', 10, 1024000)
+  # Read the configuration file
+  confdir = File.realpath(File.dirname(__FILE__) + '/../etc')
+  conffile = confdir + '/config.yaml'
+  if File.exist? conffile
+    yml = YAML.load(File.open(conffile))
+    $uri = yml['uri']
+    $authenticate = yml['authenticate']
+    $user = yml['user']
+    $password = yml['password']
+  else
+    raise "No configuration file: #{conffile}"
+  end
+  
+  # setup logging (assuming we are running under OMD)
+  logdir = ENV['HOME'] + '/var/log'
+  logger = Logger.new(logdir + '/cmk-api.log', 10, 1024000)
   configure do
     use Rack::CommonLogger, logger
   end
   
-  if @authenticate
+  if $authenticate
     use Rack::Auth::Basic, 'Restricted Area' do |username, password|
-      username == @user and password == @password
+      username == $user and password == $password
     end
   end
   
@@ -58,7 +62,6 @@ class CmkAPI < Sinatra::Base
   
   # Create a new host
   post '/hosts/:hostname' do
-    cmk = Check_MK.new
     cmk.add_host(hostname)
     cmk.activate
     { 'content' => "Host #{hostname} created", 'status' => '0' }.to_json
@@ -66,7 +69,6 @@ class CmkAPI < Sinatra::Base
   
   # Delete a host
   delete '/hosts/:hostname' do
-    cmk = Check_MK.new
     cmk.delete_host(hostname)
     cmk.activate
     { 'content' => "Host #{hostname} deleted", 'status' => '0' }.to_json
@@ -74,7 +76,7 @@ class CmkAPI < Sinatra::Base
   
   # Reload the check_mk configuration
   put '/activate' do
-    Check_MK.new.activate
+    cmk.activate
     { 'content' => "Pending changes activated", 'status' => '0' }.to_json
   end
   
