@@ -6,5 +6,10 @@ sudo omd start watotest
 login to http://wherever/watotest/check_mk/
 create a folder named 'folder1'
 create a host named 'localhost', add it to folder1
+create an automation account:
+	username = cmk-api
+	full_name = cmk-api
+	automation secret = cmk-api-secret
+	roles = administrator
 apply changes via WATO
 

@@ -8,31 +8,28 @@ class TestMain < Test::Unit::TestCase
   require 'check_mk'
   require 'yaml'
 
-  def setup
-    conffile = File.dirname(__FILE__) + '/config.yaml'
-    if File.exist? conffile
-      yml = YAML.load(File.open(conffile))
-      @ignore_sites = yml['ignore_sites']
-    else
-      # Sites which should be ignored during testing
-      @ignore_sites = []
-    end
-  end
+#DEADWOOD:
+#  def setup
+#    conffile = File.dirname(__FILE__) + '/config.yaml'
+#    if File.exist? conffile
+#      yml = YAML.load(File.open(conffile))
+#      @ignore_sites = yml['ignore_sites']
+#    else
+#      # Sites which should be ignored during testing
+#      @ignore_sites = []
+#    end
+#  end
 
   def test_initialize
    assert_not_nil(cmk)
   end
 
-  # Get a list of all sites
-  def test_sites
-    sites = @ignore_sites.dup
-    sites.push 'watotest'
-    assert_equal(sites.sort, cmk.sites)
-  end
-
-  # Get a handle to a site
-  def test_site
-    assert_not_nil(cmk.site('watotest'))
+  # Add a host
+  def test_add_and_delete_host
+    hostname = `hostname`.chomp
+    assert_nil(cmk.add_host(hostname))
+    assert_nil(cmk.delete_host(hostname))
+    assert_nil(cmk.activate)
   end
 
   private

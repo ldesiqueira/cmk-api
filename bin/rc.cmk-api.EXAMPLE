@@ -16,7 +16,7 @@
 
 INSTALL_PREFIX="/opt/cmk-api"
 SITE="watotest"
-LOGFILE="/omd/sites/$SITE/var/log/cmk-api.log"
+LOGFILE="$INSTALL_PREFIX/log/cmk-api.log"
 PORT=5005
 
 case $1 in
