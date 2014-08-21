@@ -34,7 +34,7 @@ fi
 if [ `whoami` = $RUN_AS ] ; then
   SUDO=""
 else
-  SUDO="sudo -u $RUN_AS"
+  SUDO="sudo -i -u $RUN_AS"
 fi
 
 case $1 in

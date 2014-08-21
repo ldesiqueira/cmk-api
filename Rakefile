@@ -1,4 +1,5 @@
 require 'rake/testtask'
+require 'erb'
 
 Rake::TestTask.new do |t|
   t.libs << "lib"
@@ -12,21 +13,22 @@ end
 #	  chkconfig --add cmk-api.$SITE
 
 task :install do
-  site = ENV['site'] or raise 'site is required'
-  port = ENV['port'] or raise 'port is required'
+  @site = ENV['site'] or raise 'site is required'
+  @port = ENV['port'] or raise 'port is required'
 
   # Create the init script
-  rcfile = "/etc/init.d/cmk-api.#{site}"
+  rcfile = "/etc/init.d/cmk-api.#{@site}"
   erb = ERB.new(File.read('./templates/rc.erb'))
   puts "Creating #{rcfile}.."
-  File.open(outfile, 'w') { |f| f.write(erb.result) }
-  system "chkconfig --add cmk-api.#{site}"
+  File.open(rcfile, 'w') { |f| f.write(erb.result) }
+  File.chmod 0755, rcfile
+  system "chkconfig --add cmk-api.#{@site}"
 
   # Create the sysconfig file
-  scfile = "/etc/sysconfig/cmk-api.#{site}"
+  scfile = "/etc/sysconfig/cmk-api.#{@site}"
   puts "Creating #{scfile}.."
   erb = ERB.new(File.read('./templates/sysconfig.erb'))
-  File.open(outfile, 'w') { |f| f.write(erb.result) }
+  File.open(scfile, 'w') { |f| f.write(erb.result) }
 
-  system "service cmk-api.#{site} start"
+  system "service cmk-api.#{@site} start"
 end
