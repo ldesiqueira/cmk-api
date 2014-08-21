@@ -14,30 +14,41 @@
 # Description: cmk-api is a REST API for check_mk
 ### END INIT INFO
 
-SITE="watotest"
+# Determine the site name by looking at the name of this script
+# Example:   /etc/init.d/cmk-api.foo is for the 'foo' site
+SITE=`echo $0 | sed 's/.*\.//'`
+
+# Set the defaults
 PREFIX="/omd/sites/$SITE/cmk-api"
 PIDFILE="$PREFIX/rack.pid"
+RUN_AS="$SITE"
 PORT=5005
 
-if [ `whoami` = $SITE ] ; then
+# Read the site-specific overrides
+SITE_CONFIG="/etc/sysconfig/cmk-api.$SITE"
+if [ -f $SITE_CONFIG ] ; then
+  . /etc/sysconfig/cmk-api.$SITE
+fi
+
+# Use sudo to switch to the site owner, if needed
+if [ `whoami` = $RUN_AS ] ; then
   SUDO=""
 else
-  SUDO="sudo -u $SITE"
+  SUDO="sudo -u $RUN_AS"
 fi
 
 case $1 in
 start)
-	printf "Starting cmk-api for site $SITE.. "
-        $SUDO scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT -D --pid $PREFIX/rack.pid'"
+  printf "Starting cmk-api for site $SITE on port $PORT.. "
+  $SUDO scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT -D --pid $PREFIX/rack.pid'"
  	echo "done"
 	;;
 
 start-debug)
 	echo "Starting cmk-api for site $SITE in debugging mode.. "
-        $SUDO scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT'"
+  $SUDO scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT'"
 	;;
 
-  
 stop)
 	pid=`cat $PIDFILE`
 	printf "Stopping cmk-api for site $SITE (pid $pid).. "
@@ -54,4 +65,3 @@ restart)
 	echo "unknown action" 
 	exit 1
 esac
-

@@ -24,11 +24,12 @@ sudo yum install -y ruby193-rubygem-minitest ruby193-rubygem-sinatra \
   ruby193-ruby-devel gcc-c++
 
 cd /omd/sites/$YOUR_SITE
-git clone http://FIXME..../cmk-api
+git clone git@github.com:bronto/cmk-api.git
 cd cmk-api
 scl enable ruby193 bash
 bundle update #(or maybe install?)
-TODO: how to install into /etc/init.d and chkconfig?
+sudo rake install
+sudo service cmk-api.$YOUR_SITE start
 
 TODO
 ----
