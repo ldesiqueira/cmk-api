@@ -31,22 +31,23 @@ if [ -f $SITE_CONFIG ] ; then
 fi
 
 # Use sudo to switch to the site owner, if needed
-if [ `whoami` = $RUN_AS ] ; then
-  SUDO=""
-else
-  SUDO="sudo -i -u $RUN_AS"
+if [ `whoami` != $RUN_AS ] ; then
+  sudo -i -u $RUN_AS $0 $*
+  exit $?
 fi
+
+cd $PREFIX
 
 case $1 in
 start)
   printf "Starting cmk-api for site $SITE on port $PORT.. "
-  $SUDO scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT -D --pid $PREFIX/rack.pid'"
+  scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT -D --pid $PREFIX/rack.pid'"
  	echo "done"
 	;;
 
 start-debug)
 	echo "Starting cmk-api for site $SITE in debugging mode.. "
-  $SUDO scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT'"
+  scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT'"
 	;;
 
 stop)
