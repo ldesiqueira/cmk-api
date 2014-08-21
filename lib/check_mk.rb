@@ -63,6 +63,13 @@ class Check_MK
     })
   end
 
+  def inventory_host(name)
+    # XXX-FIXME: check security of name
+    # FIXME: use wato instead of this?
+    system "cmk -I #{name}"
+    system "cmk --reload"
+  end
+
   def activate
     http_request(@uri + '/wato_ajax_activation.py', {})
   end

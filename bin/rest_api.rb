@@ -64,6 +64,7 @@ class CmkAPI < Sinatra::Base
   post '/hosts/:hostname' do
     cmk.add_host(hostname)
     cmk.activate
+    cmk.inventory_host(hostname)
     { 'content' => "Host #{hostname} created", 'status' => '0' }.to_json
   end
   
