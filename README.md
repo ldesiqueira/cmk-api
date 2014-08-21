@@ -1,7 +1,7 @@
 cmk-api
 =======
 
-check_mk REST API
+An unofficial REST API for check_mk
 
 Testing
 =======
@@ -10,14 +10,25 @@ See t/README for instructions on setting up a test OMD site.
 
 Run 'rake test' to execute the testsuite.
 
+Requirements
+============
+
+ * CentOS 6
+ * Ruby 1.9.3 via the SCL mechanism
+ * OMD
 
 Installation
 ============
 
 sudo yum install -y ruby193-rubygem-minitest ruby193-rubygem-sinatra \
   ruby193-ruby-devel gcc-c++
-sudo scl enable ruby193 'gem install rest-client'
-sudo scl enable ruby193 'gem install thin'
+
+cd /omd/sites/$YOUR_SITE
+git clone http://FIXME..../cmk-api
+cd cmk-api
+scl enable ruby193 bash
+bundle update #(or maybe install?)
+TODO: how to install into /etc/init.d and chkconfig?
 
 TODO
 ----

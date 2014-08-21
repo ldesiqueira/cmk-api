@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Init script for the Check_MK API service
+# Init script for the cmk-api service
 #
 ### BEGIN INIT INFO
 # Provides: 
@@ -14,27 +14,35 @@
 # Description: cmk-api is a REST API for check_mk
 ### END INIT INFO
 
-INSTALL_PREFIX="/opt/cmk-api"
 SITE="watotest"
-LOGFILE="$INSTALL_PREFIX/log/cmk-api.log"
+PREFIX="/omd/sites/$SITE/cmk-api"
+PIDFILE="$PREFIX/rack.pid"
 PORT=5005
+
+if [ `whoami` = $SITE ] ; then
+  SUDO=""
+else
+  SUDO="sudo -u $SITE"
+fi
 
 case $1 in
 start)
 	printf "Starting cmk-api for site $SITE.. "
-	sudo -i -u $SITE $INSTALL_PREFIX/bin/rest_api.rb -p $PORT >> $LOGFILE 2>&1 &
-	disown -h
+        $SUDO scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT -D --pid $PREFIX/rack.pid'"
  	echo "done"
 	;;
 
 start-debug)
-	sudo -i -u $SITE $INSTALL_PREFIX/bin/rest_api.rb -p $PORT 
+	echo "Starting cmk-api for site $SITE in debugging mode.. "
+        $SUDO scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT'"
 	;;
 
   
 stop)
-	printf "Stopping cmk-api for site $SITE.. "
-	sudo -u $SITE pkill -INT -u $SITE rest_api.rb
+	pid=`cat $PIDFILE`
+	printf "Stopping cmk-api for site $SITE (pid $pid).. "
+	$SUDO kill -INT $pid
+	rm $PIDFILE
 	echo "done"
 	;;
 
