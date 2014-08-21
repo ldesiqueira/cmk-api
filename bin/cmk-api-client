@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
+
+raise 'Unsupported Ruby version' unless RUBY_VERSION >= "1.9"
+
+
 require 'json'
 require 'optparse'
 require 'yaml'
@@ -75,14 +79,16 @@ when nil
   usage
 
 when 'add-host'
-  uri = @config['uri'] + '/folders/' + @config['folder'] + '/hosts/' + @config['hostname']
-  response = RestClient.post uri, :tags => ''
+  uri = @config['uri'] + '/hosts/' + @config['hostname']
+  puts uri if @config['verbose']
+  response = RestClient.post uri, {}
   pp response
 
-when 'list-hosts'
-  uri = @config['uri'] + '/folders/' + @config['folder'] 
-  response = JSON.parse(RestClient.get uri, { :accept => :json })
-  response['hosts'].sort.each { |h| puts h }
+when 'delete-host'
+  uri = @config['uri'] + '/hosts/' + @config['hostname']
+  puts uri if @config['verbose']
+  response = RestClient.delete uri
+  pp response
 
 else
   raise 'unknown action'
