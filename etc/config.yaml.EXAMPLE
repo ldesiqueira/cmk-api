@@ -2,3 +2,4 @@
 authenticate: true
 user: 'admin'
 password: 'admin'
+autodiscovery_token: 'a-long-secret-goes-here'

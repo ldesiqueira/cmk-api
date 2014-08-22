@@ -10,6 +10,7 @@ require 'sinatra/base'
 class CmkAPI < Sinatra::Base 
   require 'logger'
   require 'json'
+  require 'resolv'
   require 'yaml'
   
   $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
@@ -17,7 +18,7 @@ class CmkAPI < Sinatra::Base
   
   def hostname
     s = params[:hostname]
-    raise ArgumentError, 'illegal hostname' if s !~ /^[A-Za-z][A-Za-z0-9._-]{1,200}/
+    raise ArgumentError, 'illegal hostname' if s !~ /^[A-Za-z][A-Za-z0-9\._-]{1,200}/
     s
   end
 
@@ -34,6 +35,7 @@ class CmkAPI < Sinatra::Base
     $authenticate = yml['authenticate']
     $user = yml['user']
     $password = yml['password']
+    $autodiscovery_token = yml['autodiscovery_token']
   else
     raise "No configuration file: #{conffile}"
   end
@@ -41,17 +43,50 @@ class CmkAPI < Sinatra::Base
   # setup logging (assuming we are running under OMD)
   logdir = ENV['HOME'] + '/var/log'
   logger = Logger.new(logdir + '/cmk-api.log', 10, 1024000)
-  configure do
+  configure :production, :development do
     use Rack::CommonLogger, logger
+    enable :logging
   end
   
-  if $authenticate
-    use Rack::Auth::Basic, 'Restricted Area' do |username, password|
-      username == $user and password == $password
+  helpers do
+    def protected!
+      return if authorized?
+      headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
+      halt 401, "Not authorized\n"
+    end
+
+    def authorized?
+      @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+      return false unless @auth.provided? and @auth.basic? and @auth.credentials
+
+      # Allow the administrator to access all routes
+      return true if @auth.credentials == [$user, $password]
+
+      # Allow limited access for auto-discovery
+      unless @auth.credentials == ['autodiscovery', $autodiscovery_token]
+        logger.warn 'autodiscovery_token mismatch'
+        return false
+      end
+
+      # Verify that the originating IP address matches the hostname
+      host = request.path_info.sub(/^\/hosts\//, '').sub(/\/.*/, '')
+      begin
+        expected_ip = Resolv.new.getaddress(host)
+        if expected_ip != request.ip
+          logger.warn "name/IP address mismatch; expected #{expected_ip} but got #{request.ip}"
+          return false
+        end
+      rescue Resolv::ResolvError => e
+        logger.warn e
+        return false
+      end
+
+      return true
     end
   end
   
   before do
+    protected! if $authenticate
     content_type :json
   end
   
