@@ -22,6 +22,7 @@ task :package do
   FileUtils.mkdir_p "#{pkgroot}/var/lib/cmk-api-client"
   chmod(0700, "#{pkgroot}/var/lib/cmk-api-client")
   system "fpm -s dir -t rpm -n cmk-api-client -v #{$VERSION} -a noarch --epoch 1 --config-files /etc/sysconfig/cmk-api-client -C ./pkg ."
+  system "rm -rf ./pkg"
 end
 
 task :install do
