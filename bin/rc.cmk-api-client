@@ -57,5 +57,9 @@ if [ ! -e $STAMPFILE ] ; then
   curl_options="-XPOST --connect-timeout=30 --user '$CMK_API_USER:$CMK_API_TOKEN'"
   
   echo "Registering $fqdn with check_mk.." 
-  curl $curl_options $uri && touch $STAMPFILE
+  (
+    # Wait five minutes for ntpd to settle down, so it will appear in the inventory
+    sleep 300;
+    curl -XPOST --silent --user "$CMK_API_USER:$CMK_API_TOKEN" $uri > $STAMPFILE
+  ) &
 fi
