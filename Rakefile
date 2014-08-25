@@ -1,4 +1,4 @@
-$VERSION = '0.1.0'
+$VERSION = '0.1.1'
 
 require 'fileutils'
 require 'rake/testtask'
@@ -21,7 +21,7 @@ task :package do
   chmod(0700, "#{pkgroot}/etc/sysconfig/cmk-api-client")
   FileUtils.mkdir_p "#{pkgroot}/var/lib/cmk-api-client"
   chmod(0700, "#{pkgroot}/var/lib/cmk-api-client")
-  system 'fpm -s dir -t rpm -n cmk-api-client -v 0.1.0 -a noarch --epoch 1 --config-files /etc/sysconfig/cmk-api-client -C ./pkg .'
+  system "fpm -s dir -t rpm -n cmk-api-client -v #{$VERSION} -a noarch --epoch 1 --config-files /etc/sysconfig/cmk-api-client -C ./pkg ."
 end
 
 task :install do

@@ -2,7 +2,7 @@
 # 
 # Register the current host in check_mk.
 #
-# ### BEGIN INIT INFO
+### BEGIN INIT INFO
 # Provides: 
 # Required-Start: $network
 # Required-Stop: 

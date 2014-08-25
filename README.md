@@ -48,3 +48,9 @@ they are built. Here are the steps:
   1. Install the cmk-api-client RPM package during the server build process
   1. Run 'chkconfig --add cmk-api-client' at the end of the build process
   1. Update the /etc/sysconfig/cmk-api-client configuration file during the Kickstart.
+
+Bugs
+----
+
+ * After the RPM is installed, the cmk-api-client service should probably
+   call "chkconfig --add" to enable itself.
