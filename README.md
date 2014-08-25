@@ -22,7 +22,7 @@ Installation
 
   	# Dependencies
 	sudo yum install -y ruby193-rubygem-minitest ruby193-rubygem-sinatra \
-  		ruby193-ruby-devel gcc-c++
+  		ruby193-ruby-devel gcc-c++ rpm-build
 
 	cd /opt
 	git clone git@github.com:bronto/cmk-api.git
@@ -30,31 +30,21 @@ Installation
 	scl enable ruby193 'bundle install --path ./gems'
 	
 	# Replace $SITE and $PORT with the appropriate values
-	sudo scl enable ruby193 'rake install site=$SITE port=$PORT'
+  	sudo scl enable ruby193 'rake install site=$SITE port=$PORT'
 
-TODO
-----
+        scl enable ruby193 'bundle exec "rake package"'
 
-Use the built-in automation support instead of hacking up hosts.mk; see
-http://mathias-kettner.de/checkmk_multisite_automation.html
+Usage
+=====
 
-Example of creating a host:
+Autodiscovery
+-------------
 
-    http://util-dev-001.brontolabs.local/watotest/check_mk/wato.py?
-    filled_in=edithost
-    &_transid=-1
-    &host=util-dev-001
-    &contactgroups_use=on
-    &attr_alias=
-    &attr_ipaddress=
-    &parents_0=
-    &attr_tag_agent=cmk-agent%7Ctcp
-    &attr_tag_criticality=prod
-    &attr_tag_networking=lan
-    &save=Save+%26+Finish
-    &folder=folder1
-    &mode=newhost
+The autodiscovery mechanism allows nodes to register themselves with check_mk after
+they are built. Here are the steps:
 
-Example of deleting a host:
-
-http://util-dev-001.brontolabs.local/watotest/check_mk/wato.py?mode=folder&_delete_host=util-dev-001&_transid=1408577873/2868306339&folder=folder1&do_confirm=yes
+  1. Generate a secure passphrase and set it as the value of the 'autodiscovery_token' 
+     variable in etc/config.yaml
+  1. Install the cmk-api-client RPM package during the server build process
+  1. Run 'chkconfig --add cmk-api-client' at the end of the build process
+  1. Update the /etc/sysconfig/cmk-api-client configuration file during the Kickstart.

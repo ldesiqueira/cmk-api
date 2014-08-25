@@ -1,3 +1,6 @@
+$VERSION = '0.1.0'
+
+require 'fileutils'
 require 'rake/testtask'
 require 'erb'
 
@@ -9,8 +12,16 @@ end
 
 task :package do
   pkgroot = './pkg'
-  [pkgroot, "#{pkgroot}/etc", "#{pkgroot}/etc/init.d"].each { |d| File.mkdir d }
-  File.copy 'bin/rc.cmk-api-client', "#{pkgroot}/etc/init.d/cmk-api-client"
+  [pkgroot, "#{pkgroot}/etc", "#{pkgroot}/etc/init.d"].each { |d| Dir.mkdir d }
+  cp('bin/rc.cmk-api-client', "#{pkgroot}/etc/init.d/cmk-api-client")
+  chmod(0755, "#{pkgroot}/etc/init.d/cmk-api-client")
+
+  mkdir "#{pkgroot}/etc/sysconfig"
+  cp('examples/sysconfig.cmk-api-client', "#{pkgroot}/etc/sysconfig/cmk-api-client")
+  chmod(0700, "#{pkgroot}/etc/sysconfig/cmk-api-client")
+  FileUtils.mkdir_p "#{pkgroot}/var/lib/cmk-api-client"
+  chmod(0700, "#{pkgroot}/var/lib/cmk-api-client")
+  system 'fpm -s dir -t rpm -n cmk-api-client -v 0.1.0 -a noarch --epoch 1 --config-files /etc/sysconfig/cmk-api-client -C ./pkg .'
 end
 
 task :install do

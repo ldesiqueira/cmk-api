@@ -1,0 +1,13 @@
+# Configuration variables used by /etc/init.d/cmk-api-client
+#
+# Uncomment these and enter the correct values for your site.
+#
+
+# The URI to the cmk-api server.
+#CMK_API_URI="http://example.com:5006"
+
+# The username to login to the cmk-api service as
+#CMK_API_USER="autodiscovery"
+
+# The token to login to the cmk-api service with
+#CMK_API_TOKEN="c39b146dbef1a1e27685ae36bc6c8801"

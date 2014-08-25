@@ -45,11 +45,12 @@ test -n "$CMK_API_URI" || err 'a required variable is missing: CMK_API_URI'
 test -n "$CMK_API_USER" || err 'a required variable is missing: CMK_API_USER'
 test -n "$CMK_API_TOKEN" || err 'a required variable is missing: CMK_API_TOKEN'
 
-DATADIR=/var/local/cmk-api-client
+DATADIR=/var/lib/cmk-api-client
 STAMPFILE="$DATADIR/.autoregister"
 
-mkdir -p $DATADIR
-
+# 
+# Perform the initial autodiscovery
+#
 if [ ! -e $STAMPFILE ] ; then
   fqdn=`hostname --fqdn`
   uri="$CMK_API_URI/hosts/$fqdn"
