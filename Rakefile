@@ -7,10 +7,11 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
-# TODO: task for "install" that:
-#   * creates the /etc/init.d/cmk-api.$SITE script
-#   * enables the script to start at boot via:
-#	  chkconfig --add cmk-api.$SITE
+task :package do
+  pkgroot = './pkg'
+  [pkgroot, "#{pkgroot}/etc", "#{pkgroot}/etc/init.d"].each { |d| File.mkdir d }
+  File.copy 'bin/rc.cmk-api-client', "#{pkgroot}/etc/init.d/cmk-api-client"
+end
 
 task :install do
   @site = ENV['site'] or raise 'site is required'
