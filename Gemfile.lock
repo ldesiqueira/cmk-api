@@ -20,9 +20,12 @@ GEM
       ffi
       json (>= 1.7.7)
     json (1.8.1)
+    netrc (0.7.7)
     rack (1.5.2)
     rack-protection (1.5.3)
       rack
+    rest_client (1.7.3)
+      netrc (~> 0.7.7)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -39,5 +42,6 @@ PLATFORMS
 DEPENDENCIES
   fpm
   json
+  rest_client
   sinatra
   thin
