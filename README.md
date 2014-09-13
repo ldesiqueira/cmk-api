@@ -3,6 +3,7 @@ cmk-api
 
 An unofficial REST API for check_mk
 
+
 Testing
 =======
 
@@ -10,47 +11,80 @@ See t/README for instructions on setting up a test OMD site.
 
 Run 'rake test' to execute the testsuite.
 
+
 Requirements
 ============
 
  * CentOS 6
  * Ruby 1.9.3 via the SCL mechanism
- * OMD
+ * An OMD site running check_mk
 
-Installation
-============
 
-  	# Dependencies
-	sudo yum install -y ruby193-rubygem-minitest ruby193-rubygem-sinatra \
-  		ruby193-ruby-devel gcc-c++ rpm-build
+Server Installation
+===================
 
-	cd /opt
-	git clone git@github.com:bronto/cmk-api.git
-	cd cmk-api
-	scl enable ruby193 'bundle install --path ./gems'
+To install the cmk-api service, perform these steps on the same
+server that check_mk is running on.
+
+  * Install various Ruby dependencies:
 	
-	# Replace $SITE and $PORT with the appropriate values
-  	sudo scl enable ruby193 'rake install site=$SITE port=$PORT'
+      sudo yum install -y ruby193-rubygem-minitest \
+          ruby193-rubygem-sinatra ruby193-ruby-devel gcc-c++ rpm-build
 
-        scl enable ruby193 'bundle exec "rake package"'
+  * Install the cmk-api source code:
+
+	    cd /opt
+    	git clone git@github.com:bronto/cmk-api.git
+
+  * Install the required Ruby gems:
+
+	    cd cmk-api
+	    scl enable ruby193 'bundle install --path ./gems'
+	
+  * Install an init script to start/stop the service.
+	  Replace $SITE with the name of your OMD site,
+    and $PORT with the port that you want cmk-api to listen on.
+
+  	  sudo scl enable ruby193 'rake install site=$SITE port=$PORT'
+
+
+Client Installation
+===================
+
+There is a command-line client to simplify the use of cmk-api from
+shell scripts. To generate an RPM package of the client executable,
+run:
+
+      scl enable ruby193 'bundle exec "rake package"'
+
 
 Usage
 =====
 
+REST methods
+------------
+
+The following REST methods are available:
+
+    POST /hosts/:hostname         # Create a new host 
+    DELETE /hosts/:hostname       # Delete a host
+    PUT /activate                 # Apply changes and reload check_mk 
+
 Autodiscovery
 -------------
 
-The autodiscovery mechanism allows nodes to register themselves with check_mk after
-they are built. Here are the steps:
+The autodiscovery mechanism allows nodes to register themselves 
+with check_mk after they are built. Here are the steps:
 
-  1. Generate a secure passphrase and set it as the value of the 'autodiscovery_token' 
-     variable in etc/config.yaml
+  1. Generate a secure passphrase and set it as the value of the 
+     'autodiscovery_token' variable in etc/config.yaml
   1. Install the cmk-api-client RPM package during the server build process
   1. Run 'chkconfig --add cmk-api-client' at the end of the build process
-  1. Update the /etc/sysconfig/cmk-api-client configuration file during the Kickstart.
+  1. Update the /etc/sysconfig/cmk-api-client configuration file during 
+     the Kickstart.
 
 Bugs
-----
+====
 
  * After the RPM is installed, the cmk-api-client service should probably
    call "chkconfig --add" to enable itself.
