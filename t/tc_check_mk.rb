@@ -30,23 +30,23 @@ class TestCheck_MK < Test::Unit::TestCase
   end
 
   # Try to add a duplicate host
-  #  FIXME: This test is broken
   def test_add_duplicate_host
-   begin
-     assert_nil(cmk.add_host('testduplicate', 'folder1'))
-     assert_raise(ArgumentError) do
-       cmk.add_host('testduplicate', 'folder1')
-     end
-     assert_nil(cmk.delete_host('testduplicate', 'folder1'))
-   rescue
-     cmk.delete_host('testduplicate', 'folder1')
-   end
+    assert_nil(cmk.add_host('google.com', 'folder1'))
+    assert_nil(cmk.activate)
+    assert_raise(ArgumentError) do
+      cmk.add_host('google.com', 'folder1')
+    end
+    assert_nil(cmk.delete_host('google.com', 'folder1'))
+    assert_nil(cmk.activate)
   end
 
   # Add a host and remove it
   def test_add_and_remove_host
-    assert_nil(cmk.add_host('testhost', 'folder1'))
-    assert_nil(cmk.delete_host('testhost', 'folder1'))
+    hostname = `hostname`.chomp
+    assert_nil(cmk.add_host(hostname, 'folder1'))
+    assert_nil(cmk.activate)
+    assert_nil(cmk.delete_host(hostname, 'folder1'))
+    assert_nil(cmk.activate)
   end
 
   # Try to delete a nonexistent host

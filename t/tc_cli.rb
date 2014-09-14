@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-raise 'Unsupported version of Ruby' if RUBY_VERSION != "1.9"
+raise 'Unsupported version of Ruby' if RUBY_VERSION < "1.9"
 
 $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
 

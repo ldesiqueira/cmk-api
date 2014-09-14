@@ -103,7 +103,8 @@ class Check_MK
   end
 
   def activate
-    http_request(@uri + '/wato_ajax_activation.py', {})
+    response = http_request(@uri + '/wato_ajax_activation.py', {})
+    raise 'activation failed' unless response =~ /div class=act_success/
   end
 
   private
