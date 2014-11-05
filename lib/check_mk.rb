@@ -1,5 +1,6 @@
 class Check_MK
   require 'json'
+  require 'resolv'
   require 'uri'
   require 'net/http'
   require 'pp'
@@ -32,10 +33,21 @@ class Check_MK
   # [+options+] additional options, such as tags
   def add_host(name, folder = '', options = {})
     raise ArgumentError, 'host already exists' if host_exists?(name, folder)
+    
+    # Convert the FQDN to a shortname
+    raise ArgumentError, 'name must be a FQDN' unless name =~ /\./
+    shortname = name.sub(/\..*/, '')
+    
+    # Lookup the IP address of the FQDN
+    # TODO: catch the exception if it doesn't exist
+    in_addr = Resolv.getaddress(name)
+    
     params = {
       filled_in: 'edithost',
       _transid: '-1',
-      host: name,
+      host: shortname,
+      _change_ipaddress: 'on',
+      attr_ipaddress: in_addr,
       attr_tag_agent: 'cmk-agent%7Ctcp',
       attr_tag_networking: 'lan',
       save: 'Save+%26+Finish',

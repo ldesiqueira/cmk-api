@@ -3,6 +3,8 @@ etc/config.yaml
 etc/cmk-api-client.conf
 log/
 rack.pid
+.idea/
+.project
 .bundle/
 gems/
 pkg/
