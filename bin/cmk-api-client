@@ -81,13 +81,13 @@ when nil
 when 'add-host'
   uri = @config['uri'] + '/hosts/' + @config['hostname']
   puts uri if @config['verbose']
-  response = RestClient.post uri, {}
+  response = RestClient::Request.execute(:method => :post, :url => uri, :timeout => 300, :open_timeout => 10)
   pp response
 
 when 'delete-host'
   uri = @config['uri'] + '/hosts/' + @config['hostname']
   puts uri if @config['verbose']
-  response = RestClient.delete uri
+  response = RestClient::Request.execute(:method => :delete, :url => uri, :timeout => 300, :open_timeout => 10)
   pp response
 
 else
