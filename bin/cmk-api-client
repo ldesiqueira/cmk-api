@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
-
 raise 'Unsupported Ruby version' unless RUBY_VERSION >= "1.9"
 
-
+require 'rubygems'
+require 'bundler/setup'
 require 'json'
 require 'optparse'
 require 'yaml'
