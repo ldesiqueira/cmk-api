@@ -108,9 +108,13 @@ class Check_MK
   end
 
   def inventory_host(name)
+    # Convert the FQDN to a shortname
+    raise ArgumentError, 'name must be a FQDN' unless name =~ /\./
+    shortname = name.sub(/\..*/, '')
+
     # XXX-FIXME: check security of name
     # FIXME: use wato instead of this?
-    system "cmk -I #{name}"
+    system "cmk -I #{shortname}"
     system "cmk --reload"
   end
 
