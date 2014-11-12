@@ -1,7 +1,7 @@
-source :rubygems
+source 'https://rubygems.org'
 
-gem 'rest_client'
-gem 'fpm'
-gem 'thin'
-gem 'sinatra'
-gem 'json'
+gem 'rest_client', '~>1.7'
+gem 'fpm', '~>1.2'
+gem 'thin', '~>1.6'
+gem 'sinatra', '~>1.4'
+gem 'json', '~>1.8'
