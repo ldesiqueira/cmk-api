@@ -98,18 +98,21 @@ class CmkAPI < Sinatra::Base
   # Create a new host
   post '/hosts/:hostname' do
     cmk.add_host(hostname)
-    cmk.activate
-    cmk.inventory_host(hostname)
     { 'content' => "Host #{hostname} created", 'status' => '0' }.to_json
   end
   
   # Delete a host
   delete '/hosts/:hostname' do
     cmk.delete_host(hostname)
-    cmk.activate
     { 'content' => "Host #{hostname} deleted", 'status' => '0' }.to_json
   end
   
+  # Inventory a host
+  put '/hosts/:hostname/inventory' do
+    cmk.inventory_host(hostname)
+    { 'content' => "Host #{hostname} inventoried", 'status' => '0' }.to_json
+  end
+      
   # Reload the check_mk configuration
   put '/activate' do
     cmk.activate

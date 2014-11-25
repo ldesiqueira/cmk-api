@@ -19,7 +19,6 @@ Requirements
  * Ruby 1.9.3 via the SCL mechanism
  * An OMD site running check_mk
 
-
 Server Installation
 ===================
 
@@ -34,7 +33,7 @@ server that check_mk is running on.
   * Install the cmk-api source code:
 
 	    cd /opt
-    	git clone git@github.com:bronto/cmk-api.git
+    	    git clone git@github.com:bronto/cmk-api.git
 
   * Install the required Ruby gems:
 
@@ -67,11 +66,14 @@ REST methods
 The following REST methods are available:
 
     POST /hosts/:hostname         # Create a new host 
+    PUT /hosts/:hostname/inventory # Renew the host inventory, and drop old services
     DELETE /hosts/:hostname       # Delete a host
     PUT /activate                 # Apply changes and reload check_mk 
 
 Autodiscovery
 -------------
+
+(NOTE: This needs to be reworked into a auto-reinventory mechanism)
 
 The autodiscovery mechanism allows nodes to register themselves 
 with check_mk after they are built. Here are the steps:
