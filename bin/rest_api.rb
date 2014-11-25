@@ -11,6 +11,7 @@ class CmkAPI < Sinatra::Base
   require 'logger'
   require 'json'
   require 'resolv'
+  require 'thread'
   require 'yaml'
   
   $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
@@ -38,6 +39,35 @@ class CmkAPI < Sinatra::Base
     $autodiscovery_token = yml['autodiscovery_token']
   else
     raise "No configuration file: #{conffile}"
+  end
+
+  # Run a separate thread to perform the 'activate' function
+  # because it is so slow and resource-intensive.
+  #   
+  activation_mutex = Mutex.new
+  activation_cond = ConditionVariable.new
+  activation_requested = false
+  Thread.new do
+    loop do
+      my_action = false
+      activation_mutex.synchronize do
+        unless activation_requested
+          activation_cond.wait(activation_mutex)
+        end
+        my_action = activation_requested ? true : false
+        activation_requested = false
+      end
+      if my_action
+        begin
+          Check_MK.new($uri, $user, $password).activate
+        rescue => e
+          #log.error 'activation failed'
+          #log.debug e.backtrace
+        end
+      else
+        #log.debug 'spurious wakeup; not activating'
+      end
+    end
   end
   
   # setup logging (assuming we are running under OMD)
@@ -115,7 +145,10 @@ class CmkAPI < Sinatra::Base
       
   # Reload the check_mk configuration
   put '/activate' do
-    cmk.activate
+    activation_mutex.synchronize do
+      activation_requested = true
+      activation_cond.signal
+    end
     { 'content' => "Pending changes activated", 'status' => '0' }.to_json
   end
   
