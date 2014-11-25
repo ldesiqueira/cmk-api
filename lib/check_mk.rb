@@ -34,10 +34,6 @@ class Check_MK
   def add_host(name, folder = '', options = {})
     raise ArgumentError, 'host already exists' if host_exists?(name, folder)
     
-    # Convert the FQDN to a shortname
-    raise ArgumentError, 'name must be a FQDN' unless name =~ /\./
-    shortname = name.sub(/\..*/, '')
-    
     # Lookup the IP address of the FQDN
     # TODO: catch the exception if it doesn't exist
     in_addr = Resolv.getaddress(name)
@@ -45,7 +41,7 @@ class Check_MK
     params = {
       filled_in: 'edithost',
       _transid: '-1',
-      host: shortname,
+      host: name,
       _change_ipaddress: 'on',
       attr_ipaddress: in_addr,
       attr_tag_agent: 'cmk-agent%7Ctcp',
@@ -108,13 +104,9 @@ class Check_MK
   end
 
   def inventory_host(name)
-    # Convert the FQDN to a shortname
-    raise ArgumentError, 'name must be a FQDN' unless name =~ /\./
-    shortname = name.sub(/\..*/, '')
-
     # XXX-FIXME: check security of name
     # FIXME: use wato instead of this?
-    system "cmk -I #{shortname}"
+    system "cmk -I #{name}"
     system "cmk --reload"
   end
 
