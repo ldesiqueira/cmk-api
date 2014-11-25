@@ -20,8 +20,10 @@ class Check_MK
     @user = user
     @password = password
     @confdir = confdir
-    @log = Logger.new STDERR
+    logfile = ENV['HOME'] + '/var/log/cmk-api-debug.log'
+    @log = Logger.new(logfile, 10, 1024000)
     @log.level = Logger::DEBUG
+    @log.info "starting log"
     #TODO:@wato = Check_MK::Wato.new(@confdir)
   end
 
@@ -115,9 +117,9 @@ class Check_MK
   end
 
   def activate
-    @log.info 'activating changes'
+    log.info 'activating changes'
     result = `cmk --reload 2>&1`
-    @log.debug result
+    log.debug result
     logfile = ENV['HOME'] + '/var/check_mk/wato/log/pending.log'
     if File.exists? logfile
       log.debug "deleting #{ logfile }"
@@ -130,8 +132,8 @@ class Check_MK
     #          server is heavily loaded
     #response = http_request(@uri + '/wato_ajax_activation.py', {})
     #unless response =~ /div class=act_success/
-    #  @log.error 'activation failed'
-    #  @log.debug response
+    #  log.error 'activation failed'
+    #  log.debug response
     #  raise 'activation failed'
     #end
   end
