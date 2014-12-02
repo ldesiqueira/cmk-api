@@ -77,6 +77,11 @@ class Check_MK
     raise 'An error occured' if response =~ /div class=error/
   end
 
+  # Return a list of all hosts
+  def hosts
+    `cmk --list-hosts`.split(/\n/).sort
+  end
+
   # Return a list of the hosts in a given folder
   # [+folder+] the name of the folder
   def list_hosts(folder = '')

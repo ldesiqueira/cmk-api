@@ -132,6 +132,11 @@ class CmkAPI < Sinatra::Base
     %w[hosts activate].to_json
   end
   
+  # Return a list of all hosts
+  get '/hosts' do
+    { 'results' => cmk.hosts, 'status' => '0' }.to_json
+  end
+  
   # Create a new host
   post '/hosts/:hostname' do
     cmk.add_host(hostname)
