@@ -46,6 +46,17 @@ server that check_mk is running on.
 
   	  sudo scl enable ruby193 'rake install site=$SITE port=$PORT'
 
+Usage
+=====
+
+To start the server in debug mode, run this command:
+
+  bundle exec ./bin/rackup -p 9999
+
+Replace 9999 with the port you want to use.
+
+(FIXME: how to run without debug mode)
+
 
 Client Installation
 ===================

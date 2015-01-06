@@ -1,5 +1,5 @@
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     arr-pm (0.0.9)
       cabin (> 0)
@@ -40,8 +40,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  fpm
-  json
-  rest_client
-  sinatra
-  thin
+  fpm (~> 1.2)
+  json (~> 1.8)
+  rest_client (~> 1.7)
+  sinatra (~> 1.4)
+  thin (~> 1.6)
