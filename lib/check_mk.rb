@@ -15,13 +15,17 @@ class Check_MK
   # [+user+] the username to login with
   # [+password+] the password to login with
   # [+confdir+] the base of the WATO configuration directory
-  def initialize(uri, user, password, confdir = '')
-    @uri = uri
-    @user = user
-    @password = password
-    @confdir = confdir
-    logfile = ENV['HOME'] + '/var/log/cmk-api-debug.log'
-    @log = Logger.new(logfile, 10, 1024000)
+  def initialize(opt)
+    raise ArgumentError unless opt.kind_of? Hash
+    opt = {
+      confdir: '',
+      logger: Logger.new($stdout),
+    }.merge(opt)
+    @uri = opt[:uri]
+    @user = opt[:user]
+    @password = opt[:password]
+    @confdir = opt[:confdir]
+    @log = opt[:logger]
     @log.level = Logger::DEBUG
     @log.info "starting log"
     #TODO:@wato = Check_MK::Wato.new(@confdir)

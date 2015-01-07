@@ -24,7 +24,7 @@ class CmkAPI < Sinatra::Base
   end
 
   def cmk
-    @@cmk ||= Check_MK.new($uri, $user, $password)
+    @@cmk
   end
   
   # Read the configuration file
@@ -41,50 +41,24 @@ class CmkAPI < Sinatra::Base
     raise "No configuration file: #{conffile}"
   end
 
-  @@cmk = Check_MK.new($uri, $user, $password)
-  
-  # setup logging (assuming we are running under OMD)
-  logdir = ENV['HOME'] + '/var/log'
-  logger = Logger.new(logdir + '/cmk-api.log', 10, 1024000)
+  # setup logging
+  if ENV['CMKAPI_LOGDIR']
+    logdir = ENV['CMKAPI_LOGDIR']
+    logger = Logger.new(logdir + '/cmk-api.log', 10, 1024000)
+  else
+    logger = Logger.new($stdout)
+  end
   configure :production, :development do
     use Rack::CommonLogger, logger
     enable :logging
   end
   
-# DEADWOOD -- This separate thread works fine when run in debugging mode,
-# but crashes the server when it runs as a daemon
-#
-#  # Run a separate thread to perform the 'activate' function
-#  # because it is so slow and resource-intensive.
-#  #   
-#  activation_mutex = Mutex.new
-#  activation_cond = ConditionVariable.new
-#  activation_requested = false
-#  Thread.new do
-#    loop do
-#      my_action = false
-#      activation_mutex.synchronize do
-#        unless activation_requested
-#          activation_cond.wait(activation_mutex)
-#        end
-#        my_action = activation_requested ? true : false
-#        activation_requested = false
-#      end
-#      if my_action
-#        begin
-#          cmk = Check_MK.new($uri, $user, $password)
-#          cmk.log = logger # FIXME: probably not threadsafe
-#          cmk.activate
-#        rescue => e
-#          logger.error 'activation failed'
-#          logger.debug e.backtrace
-#        end
-#      else
-#        logger.debug 'spurious wakeup; not activating'
-#      end
-#    end
-#  end
-
+  @@cmk = Check_MK.new(
+         uri: $uri,
+         user: $user,
+         password: $password,
+         logger: logger)
+  
   helpers do
     def protected!
       return if authorized?
