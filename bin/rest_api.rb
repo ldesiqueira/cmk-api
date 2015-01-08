@@ -30,17 +30,9 @@ class CmkAPI < Sinatra::Base
   # Read the configuration file
   confdir = File.realpath(File.dirname(__FILE__) + '/../etc')
   conffile = confdir + '/config.yaml'
-  if File.exist? conffile
-    yml = YAML.load(File.open(conffile))
-    $uri = yml['uri']
-    $authenticate = yml['authenticate']
-    $user = yml['user']
-    $password = yml['password']
-    $site = yml['site']
-    $autodiscovery_token = yml['autodiscovery_token']
-  else
-    raise "No configuration file: #{conffile}"
-  end
+  raise "#{conffile} not found" unless File.exist? conffile
+  $config = YAML.load_file(conffile).to_hash
+  $config = $config.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
 
   # setup logging
   if ENV['CMKAPI_LOGDIR']
@@ -49,17 +41,13 @@ class CmkAPI < Sinatra::Base
   else
     logger = Logger.new($stdout)
   end
+  $config[:logger] = logger
   configure :production, :development do
     use Rack::CommonLogger, logger
     enable :logging
   end
   
-  @@cmk = Check_MK.new(
-         uri: $uri,
-         user: $user,
-         password: $password,
-         site: $site,
-         logger: logger)
+  @@cmk = Check_MK.new($config)
   
   helpers do
     def protected!
@@ -73,10 +61,10 @@ class CmkAPI < Sinatra::Base
       return false unless @auth.provided? and @auth.basic? and @auth.credentials
 
       # Allow the administrator to access all routes
-      return true if @auth.credentials == [$user, $password]
+      return true if @auth.credentials == [$config[:user], $config[:password]]
 
       # Allow limited access for auto-discovery
-      unless @auth.credentials == ['autodiscovery', $autodiscovery_token]
+      unless @auth.credentials == ['autodiscovery', $config[:autodiscovery_token]]
         logger.warn 'autodiscovery_token mismatch'
         return false
       end
@@ -99,7 +87,7 @@ class CmkAPI < Sinatra::Base
   end
   
   before do
-    protected! if $authenticate
+    protected! if $config[:authenticate]
     content_type :json
   end
   
@@ -138,11 +126,6 @@ class CmkAPI < Sinatra::Base
       
   # Reload the check_mk configuration
   put '/activate' do
-    #DEADWOOD:
-    #activation_mutex.synchronize do
-    #  activation_requested = true
-    #  activation_cond.signal
-    #end
     cmk.activate
     { 'content' => "Pending changes activated", 'status' => '0' }.to_json
   end
