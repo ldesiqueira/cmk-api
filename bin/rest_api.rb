@@ -126,7 +126,7 @@ class CmkAPI < Sinatra::Base
   end
   
   # Get a host
-  get '/host/:hostname' do
+  get '/hosts/:hostname' do
     { 'results' => cmk.get_host(hostname), 'status' => '0' }.to_json
   end
   

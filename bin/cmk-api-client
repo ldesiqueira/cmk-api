@@ -97,7 +97,7 @@ when 'delete-host'
   pp response
 
 when 'get-host'
-  uri = @config['uri'] + '/host/' + @config['hostname']
+  uri = @config['uri'] + '/hosts/' + @config['hostname']
   puts uri if @config['verbose']
   response = RestClient::Request.execute(:method => :delete, :url => uri, :timeout => 300, :open_timeout => 10)
   pp response
