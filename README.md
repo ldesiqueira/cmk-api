@@ -3,7 +3,6 @@ cmk-api
 
 An unofficial REST API for check_mk
 
-
 Testing
 =======
 
@@ -15,9 +14,13 @@ Run 'rake test' to execute the testsuite.
 Requirements
 ============
 
- * CentOS 6
- * Ruby 1.9.3 via the SCL mechanism
+At a minimum, you should have:
+
+ * Ruby 1.9.3 or higher
  * An OMD site running check_mk
+
+This software is only tested with CentOS 6 and Ruby 2.0, so YMMV.
+
 
 Server Installation
 ===================
@@ -25,26 +28,22 @@ Server Installation
 To install the cmk-api service, perform these steps on the same
 server that check_mk is running on.
 
-  * Install various Ruby dependencies:
-	
-      sudo yum install -y ruby193-rubygem-minitest \
-          ruby193-rubygem-sinatra ruby193-ruby-devel gcc-c++ rpm-build
-
   * Install the cmk-api source code:
 
-	    cd /opt
-    	    git clone git@github.com:bronto/cmk-api.git
+      cd /opt
+      git clone git@github.com:bronto/cmk-api.git
 
   * Install the required Ruby gems:
 
-	    cd cmk-api
-	    scl enable ruby193 'bundle install --path ./gems'
+      cd cmk-api
+      bundle install --path vendor/bundle
 	
   * Install an init script to start/stop the service.
-	  Replace $SITE with the name of your OMD site,
+    Replace $SITE with the name of your OMD site,
     and $PORT with the port that you want cmk-api to listen on.
 
-  	  sudo scl enable ruby193 'rake install site=$SITE port=$PORT'
+      rake install site=$SITE port=$PORT
+
 
 Usage
 =====
