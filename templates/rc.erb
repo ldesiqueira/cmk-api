@@ -21,6 +21,7 @@ SITE=`echo $0 | sed 's/.*\.//'`
 # Set the defaults
 PREFIX="/opt/cmk-api"
 PIDFILE="/omd/sites/$SITE/tmp/run/cmk-api.pid"
+RUBY_BINDIR="/opt/ruby/2.0.0/bin"
 RUN_AS="$SITE"
 PORT=5005
 
@@ -36,18 +37,21 @@ if [ `whoami` != $RUN_AS ] ; then
   exit $?
 fi
 
+# Switch to the preferred Ruby version
+export PATH=$RUBY_BINDIR:$PATH
+
 cd $PREFIX
 
 case $1 in
 start)
 	printf "Starting cmk-api for site $SITE on port $PORT.. "
-	scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT -D --pid $PIDFILE'"
+	bundle exec $PREFIX/bin/rackup -p $PORT -D --pid $PIDFILE
  	echo "done"
 	;;
 
 start-debug)
 	echo "Starting cmk-api for site $SITE in debugging mode.. "
-	scl enable ruby193 "bundle exec '$PREFIX/bin/rackup -p $PORT'"
+	bundle exec $PREFIX/bin/rackup -p $PORT
 	;;
 
 stop)
