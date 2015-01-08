@@ -76,10 +76,11 @@ REST methods
 
 The following REST methods are available:
 
-    POST /hosts/:hostname         # Create a new host 
+    POST /hosts/:hostname          # Create a new host 
     PUT /hosts/:hostname/inventory # Renew the host inventory, and drop old services
-    DELETE /hosts/:hostname       # Delete a host
-    PUT /activate                 # Apply changes and reload check_mk 
+    DELETE /hosts/:hostname        # Delete a host
+    GET /host/:hostname            # Get a host
+    PUT /activate                  # Apply changes and reload check_mk 
 
 Autodiscovery
 -------------
