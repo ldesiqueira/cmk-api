@@ -125,6 +125,11 @@ class CmkAPI < Sinatra::Base
     { 'content' => "Host #{hostname} deleted", 'status' => '0' }.to_json
   end
   
+  # Get a host
+  get '/host/:hostname' do
+    { 'results' => cmk.get_host(hostname), 'status' => '0' }.to_json
+  end
+  
   # Inventory a host
   put '/hosts/:hostname/inventory' do
     cmk.inventory_host(hostname)

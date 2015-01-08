@@ -105,6 +105,18 @@ class Check_MK
     raise 'An error occured' if response =~ /div class=error/
   end
 
+  def get_host(name, folder = '')
+    result = {
+       name: name,
+       has_services: has_services(name)
+    }
+  end
+
+  def has_services(name)
+    result = `#{cmk} --dump #{name} | sed -e '1,/------/d' | wc -l`.to_i
+    return (result > 0)
+  end
+
   # Return a list of all hosts
   def hosts
     `#{cmk} --list-hosts`.split(/\n/).sort

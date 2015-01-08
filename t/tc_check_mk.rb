@@ -54,6 +54,18 @@ class TestCheck_MK < Test::Unit::TestCase
     assert_raise(ArgumentError) { cmk.delete_host('does not exist', 'folder1')}
   end
 
+  # Verify a host has services
+  def test_has_services
+    hostname = `hostname`.chomp
+    assert_equal(true, cmk.has_services(hostname))
+  end
+
+  # Verify a host has no services
+  def test_has_no_services
+    hostname = "lol-no-001.notreal.com"
+    assert_equal(false, cmk.has_services(hostname))
+  end
+
   private
 
   # Get a fresh instance of a Wato object
