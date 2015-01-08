@@ -24,7 +24,7 @@ class Check_MK
     raise ArgumentError unless opt.kind_of? Hash
     @config = {
       confdir: File.dirname(__FILE__) + '/../etc',
-      logger: Logger.new($stdout),
+      logger: Logger.new('/dev/null'),
       site: nil,
     }.merge(opt)
  
