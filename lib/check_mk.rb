@@ -1,4 +1,5 @@
 class Check_MK
+  require 'logger'
   require 'json'
   require 'resolv'
   require 'uri'

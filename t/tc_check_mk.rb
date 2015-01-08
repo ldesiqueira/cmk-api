@@ -58,6 +58,9 @@ class TestCheck_MK < Test::Unit::TestCase
 
   # Get a fresh instance of a Wato object
   def cmk
-   Check_MK.new 'http://localhost/watotest/check_mk', 'cmk-api', 'cmk-api-secret'
+   Check_MK.new(
+ 	uri: 'http://localhost/watotest/check_mk', 
+	user: 'cmk-api',
+	password: 'cmk-api-secret')
   end
 end
