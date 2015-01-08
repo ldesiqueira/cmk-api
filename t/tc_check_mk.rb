@@ -60,6 +60,7 @@ class TestCheck_MK < Test::Unit::TestCase
   def cmk
    Check_MK.new(
  	uri: 'http://localhost/watotest/check_mk', 
+        site: 'watotest',
 	user: 'cmk-api',
 	password: 'cmk-api-secret')
   end

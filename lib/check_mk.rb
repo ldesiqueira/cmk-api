@@ -1,4 +1,5 @@
 class Check_MK
+  require 'awesome_print'
   require 'logger'
   require 'json'
   require 'resolv'
@@ -12,24 +13,46 @@ class Check_MK
   attr_accessor :log
 
   # Create a top-level object.
+  # Keyword arguments are:
   # [+uri+] the URI to the check_mk web interface
   # [+user+] the username to login with
   # [+password+] the password to login with
   # [+confdir+] the base of the WATO configuration directory
+  # [+site+] The name of the OMD site
+  # [+logger+] A logging object compatible with the Logger class
   def initialize(opt)
     raise ArgumentError unless opt.kind_of? Hash
-    opt = {
-      confdir: '',
+    @config = {
+      confdir: File.dirname(__FILE__) + '/../etc',
       logger: Logger.new($stdout),
+      site: nil,
     }.merge(opt)
-    @uri = opt[:uri]
-    @user = opt[:user]
-    @password = opt[:password]
-    @confdir = opt[:confdir]
-    @log = opt[:logger]
+ 
+    @log = @config[:logger]
     @log.level = Logger::DEBUG
-    @log.info "starting log"
+    @log.debug "starting log"
+
+    check_sanity
+    @config.each { |k,v| instance_variable_set("@#{k}", v) }
+
     #TODO:@wato = Check_MK::Wato.new(@confdir)
+  end
+
+  # Check the sanity of the environment and the configuration settings
+  def check_sanity
+    errors = []
+    [:site, :uri, :user, :password, :confdir].each do |sym|
+      if @config[sym].nil?# or @config[sym].empty?
+        errors << "Option '#{sym}' is required"
+      end
+    end
+    unless errors.empty?
+      $stderr.puts 'ERROR: The following problems were detected:'
+      errors.map { |e| $stderr.puts " * #{e}" }
+      $stderr.puts "\nConfiguration options:\n"
+      ap @config
+      exit 1
+    end
   end
 
   # Get a handle to a folder
@@ -84,7 +107,7 @@ class Check_MK
 
   # Return a list of all hosts
   def hosts
-    `cmk --list-hosts`.split(/\n/).sort
+    `#{cmk} --list-hosts`.split(/\n/).sort
   end
 
   # Return a list of the hosts in a given folder
@@ -122,13 +145,13 @@ class Check_MK
   def inventory_host(name)
     # XXX-FIXME: check security of name
     # FIXME: use wato instead of this?
-    system "cmk -I #{name}"
+    system "#{cmk} -I #{name}"
     activate
   end
 
   def activate
     log.info 'activating changes'
-    result = `cmk --reload 2>&1`
+    result = `#{cmk} --reload 2>&1`
     log.debug result
     logfile = ENV['HOME'] + '/var/check_mk/wato/log/pending.log'
     if File.exists? logfile
@@ -150,9 +173,18 @@ class Check_MK
 
   private
 
+  # Return the path to the check_mk 'cmk' binary
+  def cmk
+   if ENV['USER'] == @site
+     "/omd/sites/#{@site}/bin/cmk"
+   else
+     "sudo -i -u #{@site} /omd/sites/#{@site}/bin/cmk"
+   end
+  end
+
   # Return true if a host exists
   def host_exists?(host)
-    `cmk --list-hosts`.split(/\n/).include?(host)
+    `#{cmk} --list-hosts`.split(/\n/).include?(host)
   end
 
   def http_request(request_uri, params = nil, debug = false)
