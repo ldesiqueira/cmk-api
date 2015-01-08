@@ -36,6 +36,7 @@ class CmkAPI < Sinatra::Base
     $authenticate = yml['authenticate']
     $user = yml['user']
     $password = yml['password']
+    $site = yml['site']
     $autodiscovery_token = yml['autodiscovery_token']
   else
     raise "No configuration file: #{conffile}"
@@ -57,6 +58,7 @@ class CmkAPI < Sinatra::Base
          uri: $uri,
          user: $user,
          password: $password,
+         site: $site,
          logger: logger)
   
   helpers do
