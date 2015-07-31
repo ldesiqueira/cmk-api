@@ -190,7 +190,7 @@ class Check_MK
 
   # Ensure that [+userdata+] is a valid hostname. 
   def validate_hostname(userdata)
-    if userdata =~ /\A[A-Za-z0-9.]{2,254}\z/
+    if userdata =~ /\A[A-Za-z0-9\-\.]{2,254}\z/
       userdata
     else
       raise 'Illegal hostname'
