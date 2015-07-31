@@ -123,6 +123,12 @@ class CmkAPI < Sinatra::Base
     cmk.inventory_host(hostname)
     { 'content' => "Host #{hostname} inventoried", 'status' => '0' }.to_json
   end
+
+  # Reinventory a host, which removes missing services
+  put '/hosts/:hostname/reinventory' do
+    cmk.reinventory_host(hostname)
+    { 'content' => "Host #{hostname} reinventoried", 'status' => '0' }.to_json
+  end
       
   # Reload the check_mk configuration
   put '/activate' do

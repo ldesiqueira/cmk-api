@@ -155,10 +155,13 @@ class Check_MK
   end
 
   def inventory_host(name)
-    # XXX-FIXME: check security of name
-    # FIXME: use wato instead of this?
-    system "#{cmk} -I #{name}"
-    activate
+    # TODO: use wato instead of this?
+    system "#{cmk} -I #{validate_hostname(name)}"
+    activate   # TODO: remove this in the next API version
+  end
+
+  def reinventory_host(name)
+    system "#{cmk} -II #{validate_hostname(name)}"
   end
 
   def activate
@@ -184,6 +187,15 @@ class Check_MK
   end
 
   private
+
+  # Ensure that [+userdata+] is a valid hostname. 
+  def validate_hostname(userdata)
+    if userdata =~ /\A[A-Za-z0-9.]{2,254}\z/
+      userdata
+    else
+      raise 'Illegal hostname'
+    end
+  end
 
   # Return the path to the check_mk 'cmk' binary
   def cmk
